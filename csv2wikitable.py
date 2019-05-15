@@ -1,6 +1,7 @@
 import sys
 import argparse
 import re
+import csv
 import numpy as np
 
 
@@ -18,6 +19,22 @@ def parse_args():
     )
     args = parser.parse_args()
     return args
+
+
+def read_csv(csvfile):
+    try:
+        csvdata = []
+        with open(csvfile) as f:
+            lines = f.readlines()
+    except IOError:
+        print('Failed to read input file.', file=sys.stderr)
+        sys.exit(1)
+
+    for line in csv.reader(lines):
+        line = [x.strip() for x in line]
+        csvdata.append(line)
+
+    return csvdata
 
 
 def split_title_and_table(elems):
@@ -117,13 +134,7 @@ def generate_source(table_width, title, table, is_heading, column_widths):
 def main():
     args = parse_args()
 
-    elems = []
-    try:
-        for line in open(args.input):
-            elems.append([x.rstrip() for x in line.split(',')])
-    except IOError:
-        print('Failed to open input file.', file=sys.stderr)
-        sys.exit(1)
+    elems = read_csv(args.input)
 
     title_raw, table = split_title_and_table(elems)
 
